@@ -31,7 +31,15 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="include/SDL2" />
 		</Compiler>
+		<ResourceCompiler>
+			<Add directory="dll" />
+		</ResourceCompiler>
+		<Linker>
+			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer" />
+			<Add directory="lib" />
+		</Linker>
 		<Unit filename="main.cpp" />
 		<Extensions />
 	</Project>
