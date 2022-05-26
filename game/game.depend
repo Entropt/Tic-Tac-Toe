@@ -1,7 +1,7 @@
 # depslib dependency file v1.0
-1653501670 source:d:\tic-tac-toe\game\main.cpp
-	<SDL.h>
-	<stdio.h>
+1653590059 source:d:\tic-tac-toe\game\main.cpp
+	"include/CommonFunction.h"
+	"include/BaseObject.h"
 
 1650910406 d:\tic-tac-toe\game\include\sdl2\sdl.h
 	"SDL_main.h"
@@ -380,4 +380,41 @@
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
+
+1653590048 d:\tic-tac-toe\game\include\commonfunction.h
+	<iostream>
+	<windows.h>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+
+1561870398 d:\tic-tac-toe\game\include\sdl2\sdl_image.h
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1540998018 d:\tic-tac-toe\game\include\sdl2\sdl_mixer.h
+	"SDL_stdinc.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1376156551 d:\tic-tac-toe\game\include\sdl2\sdl_ttf.h
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+
+1653573558 source:d:\tic-tac-toe\game\src\commonfunction.cpp
+	"../include/CommonFunction.h"
+
+1653589808 source:d:\tic-tac-toe\game\src\baseobject.cpp
+	"../include/BaseObject.h"
+
+1653589860 d:\tic-tac-toe\game\include\baseobject.h
+	"../include/CommonFunction.h"
 

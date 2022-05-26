@@ -40,7 +40,9 @@
 			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer" />
 			<Add directory="lib" />
 		</Linker>
+		<Unit filename="include/CommonFunction.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/CommonFunction.cpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
