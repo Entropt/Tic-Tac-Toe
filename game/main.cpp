@@ -16,11 +16,15 @@ bool checkAvailable();
 void gameData();
 
 //Frees media and shuts down SDL
-void close();
+
 
 void initData();
+void winableBot();
+void unwinableBot();
 bool check();
 int winner_checker();
+
+void close();
 
 SDL_Event event;
 BaseObject menu;
@@ -39,19 +43,28 @@ BaseObject player_first_icon;
 TTF_Font* font;
 TTF_Font* fontBig;
 
-int status = 1;
+int status = MAIN_MENU;
 bool winable_mode, player_first_mode;
 string p_name[2];
-int board[9]; ///0 = non-existent, 1 = X, 2 = O
+vector<int> board (9, 0); ///0 = non-existent, 1 = X, 2 = O
+
+map < vector<int>, int > optMove1; ///bot_start
+map < vector<int>, int > optMove2;
 int score[2];
 SDL_Rect tile[9]; ///position of 9 tiles
 int frame[9]; //full -1
-int turn;
+int turn = 1;
 
 
 int main( int argc, char* args[] )
 {
     srand(time(0));
+
+
+    gameData();
+
+
+
 
 	if( !init() )
 	{
@@ -69,7 +82,7 @@ int main( int argc, char* args[] )
         curTick = SDL_GetTicks();
         if(curTick - lastTick >= 33)
         {
-            ////chay ct
+
             while(SDL_PollEvent(&event))
             {
                 if(event.type == SDL_QUIT)
@@ -114,11 +127,13 @@ int main( int argc, char* args[] )
                             curPlayer = 1;
                         else if(inRect(x, y, return_icon.GetRect()))
                             status = 1;
-                        else if(inRect(x, y, continue_icon.GetRect()) && p_name[0].size() > 1 && p_name[1].size() > 1)
+                        else if(inRect(x, y, continue_icon.GetRect()))
                         {
-                            score[0] = score[1] = 0;
-                            status = MULTI_GAMEPLAY;
-                            initData();
+                            if (p_name[0].size() > 1 && p_name[1].size() > 1) {
+                                score[0] = score[1] = 0;
+                                status = MULTI_GAMEPLAY;
+                                initData();
+                            }
                         }
                         else curPlayer = -1;
                     }
@@ -134,6 +149,7 @@ int main( int argc, char* args[] )
                             player_first_mode = 0;
                             score[0] = score[1] = 0;
                             status = SINGLE_GAMEPLAY;
+                            cout << turn << '\n';
                             initData();
                         }
 
@@ -145,7 +161,10 @@ int main( int argc, char* args[] )
                         if (inRect(x, y, return_icon.GetRect()))
                             status = SINGLE_FIRST_PICK;
 
-                        if (turn % 2 == player_first_mode && turn <= 9)
+                            //cout << turn << '\n';
+                        if (turn % 2 == player_first_mode && turn <= 9) {
+
+
                             for (int i = 0; i < 9; i++)
                                 if (inRect(x, y, tile[i]) && board[i] == 0 && check()){
                                     board[i] = !player_first_mode + 1;
@@ -153,6 +172,7 @@ int main( int argc, char* args[] )
                                     turn++;
                                     break;
                                 }
+                        }
                     }
                     else if (status == MULTI_GAMEPLAY) {
                         if (inRect(x, y, return_icon.GetRect()))
@@ -216,7 +236,6 @@ int main( int argc, char* args[] )
 
             }
 
-            cout << turn << '\n';
             //////////////Processing
             if(status == SINGLEPLAYER || status == SINGLE_FIRST_PICK)
             {
@@ -237,42 +256,30 @@ int main( int argc, char* args[] )
 
             if(status == SINGLE_GAMEPLAY)
             {
-                gameData();
 
+                //Bot Winable
+                if (winable_mode) winableBot();
+                else unwinableBot();
 
                 int game_status = winner_checker(); /// = 0 if draw, 1 if X wins, 2 if O wins
 
-                if (game_status == 1 && check()) {
+
+
+                if (game_status == !player_first_mode + 1 && check()) {
                     score[0]++;
                     initData();
                 }
-                else if (game_status == 2 && check()) {
+                else if (game_status == player_first_mode + 1 && check()) {
                     score[1]++;
                     initData();
                 }
-                else if (turn >= 10)
+                else if (turn >= 10 && check()) {
+
                     initData();
-
-                ///Bot
-                int p;
-                if (turn % 2 != player_first_mode && turn <= 9 && check()) {
-                    p = rand() % 9;
-
-                    while (board[p] != 0) {
-                        p = rand() % 9;
-                        cout << p << '\n';
-                    }
-                    cout << p << '\n';
-                    board[p] = player_first_mode + 1;
-                    turn++;
-                    frame[p] = 0;
                 }
-
             }
 
             if (status == MULTI_GAMEPLAY) {
-                gameData();
-
 
                 int game_status = winner_checker(); /// = 0 if draw, 1 if X wins, 2 if O wins
 
@@ -284,8 +291,9 @@ int main( int argc, char* args[] )
                     score[1]++;
                     initData();
                 }
-                else if (turn >= 10)
+                else if (turn >= 10 && check()) {
                     initData();
+                }
             }
 
             //////////////Render
@@ -425,6 +433,7 @@ int main( int argc, char* args[] )
                     }
                 }
                 return_icon.Render(gRenderer, NULL);
+                cout << turn << '\n';
             }
             else if (status == MULTI_GAMEPLAY) {
                 play_gr.Render(gRenderer, NULL);
@@ -631,13 +640,122 @@ bool checkAvailable() {
     return false;
 }
 
+void winableBot() {
+    int p;
+    if (turn % 2 != player_first_mode && turn <= 9 && check()) {
+        p = rand() % 9;
+
+        while (board[p] != 0)
+            p = rand() % 9;
+
+        board[p] = player_first_mode + 1;
+        turn++;
+        frame[p] = 0;
+    }
+}
+
+
+void unwinableBot() {
+
+    int res = INT_MIN, nres;
+    for (int i = 0; i < 9; i++)
+        if (board[i] == 0) {
+            board[i] = player_first_mode + 1;
+
+            if (player_first_mode) {
+                if (res < optMove2[board]) {
+                    res = optMove2[board];
+                    nres = i;
+                }
+            }
+            else {
+                if (res < optMove1[board]) {
+                    res = optMove1[board];
+                    nres = i;
+                }
+            }
+
+            board[i] = 0;
+        }
+
+    board[nres] = player_first_mode + 1;
+    turn++;
+    frame[nres] = 0;
+
+
+}
+
+void make_OptMove(vector<int> board, int numb, bool bot_turn, bool player_start) {
+
+    if (player_start) {
+        if (optMove2.find(board) != optMove2.end())
+            return;
+        optMove2[board] = 0;
+    }
+    else {
+        if (optMove1.find(board) != optMove1.end())
+            return;
+        optMove1[board] = 0;
+    }
+
+    int res = 0;
+
+    int game_status = winner_checker(); /// = 0 if draw, 1 if X wins, 2 if O wins
+
+    if ((game_status == 1 && player_start) || (game_status == 2 && !player_start)) {
+        if (player_start) optMove2[board] = -1;
+        else optMove1[board] = -1;
+        return;
+
+    }
+    else if ((game_status == 2 && player_start) || (game_status == 1 && !player_start)) {
+        if (player_start) optMove2[board] = 1;
+        else optMove1[board] = 1;
+        return;
+    }
+    else {
+        for (int i = 0; i < 9; i++)
+            if (board[i] == 0) {
+                board[i] = player_start + 1;
+
+                cout << board[i] << '\n';
+                make_OptMove(board, i, !bot_turn, player_start);
+                if (player_start)
+                    res += optMove2[board];
+                else
+                    res += optMove1[board];
+
+                board[i] = 0;
+            }
+        if (player_start) optMove2[board] = 0;
+        else optMove1[board] = 0;
+    }
+
+    //for (int i = 0; i < 9; i++)
+    //    cout << board[i] << ' ';
+    //cout << "  ";
+    //cout << optMove1[board] << ' ' << optMove2[board] << '\n';
+}
+
+void gameData() {
+    for (int i = 0; i < 9; i++)
+        if (i == 0) tile[i] = {736, 48, 307, 307};
+        else tile[i] = {tile[0].x + (i % 3) * 335, tile[0].y + (i / 3) * 335, 307, 307};
+
+    for (int i = 0; i < 9; i++) {
+        board[i] = 1;
+        make_OptMove(board, i, 1, 0);
+        make_OptMove(board, i, 0, 1);
+        board[i] = 0;
+    }
+}
+
 void initData() {
     for (int i = 0; i <= 8; i++) {
         board[i] = 0;
         frame[i] = -1;
     }
     turn = 1;
-
 }
 
 bool check()
@@ -663,15 +781,8 @@ int winner_checker() {
     return 0;
 }
 
-void gameData() {
-    for (int i = 0; i < 9; i++)
-        if (i == 0) tile[i] = {736, 48, 307, 307};
-        else tile[i] = {tile[0].x + (i % 3) * 335, tile[0].y + (i / 3) * 335, 307, 307};
-}
-
 void close()
 {
-
 	//Destroy window
 	SDL_DestroyRenderer( gRenderer );
 	SDL_DestroyWindow( gWindow );
