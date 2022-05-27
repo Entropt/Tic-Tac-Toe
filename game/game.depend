@@ -1,9 +1,7 @@
 # depslib dependency file v1.0
-1653618349 source:d:\tic-tac-toe\game\main.cpp
+1653631339 source:d:\tic-tac-toe\game\main.cpp
 	"include/CommonFunction.h"
 	"include/BaseObject.h"
-	"include/LTexture.h"
-	"include/LButton.h"
 
 1650910406 d:\tic-tac-toe\game\include\sdl2\sdl.h
 	"SDL_main.h"
@@ -383,7 +381,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1653619422 d:\tic-tac-toe\game\include\commonfunction.h
+1653630568 d:\tic-tac-toe\game\include\commonfunction.h
 	<bits/stdc++.h>
 	<windows.h>
 	<SDL.h>
@@ -411,13 +409,13 @@
 	"begin_code.h"
 	"close_code.h"
 
-1653573558 source:d:\tic-tac-toe\game\src\commonfunction.cpp
+1653623828 source:d:\tic-tac-toe\game\src\commonfunction.cpp
 	"../include/CommonFunction.h"
 
-1653589808 source:d:\tic-tac-toe\game\src\baseobject.cpp
+1653622959 source:d:\tic-tac-toe\game\src\baseobject.cpp
 	"../include/BaseObject.h"
 
-1653589860 d:\tic-tac-toe\game\include\baseobject.h
+1653622914 d:\tic-tac-toe\game\include\baseobject.h
 	"../include/CommonFunction.h"
 
 1653618551 source:d:\tic-tac-toe\game\src\lbutton.cpp

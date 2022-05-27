@@ -19,21 +19,10 @@ static SDL_Renderer* g_screen = NULL;
 static SDL_Event g_event;
 
 
-enum LButtonSprite
-{
-	BUTTON_SPRITE_MOUSE_OUT = 0,
-	BUTTON_SPRITE_MOUSE_OVER_MOTION = 1,
-	BUTTON_SPRITE_MOUSE_DOWN = 2,
-	BUTTON_SPRITE_MOUSE_UP = 3,
-	BUTTON_SPRITE_TOTAL = 4
-};
-
-SDL_Rect gSpriteClips[ BUTTON_SPRITE_TOTAL ];
-
 ///Screen
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 const int BUTTON_WIDTH = 300;
 const int BUTTON_HEIGHT = 200;
@@ -42,5 +31,11 @@ const int TOTAL_BUTTONS = 4;
 const int COLOR_KEY_R = 167;
 const int COLOR_KEY_G = 175;
 const int COLOR_KEY_B = 180;
+
+const SDL_Color white = {255, 255, 255, 255};
+const SDL_Color black = {0, 0, 0, 255};
+const SDL_Color red = {255, 0, 0, 255};
+
+bool inRect(int x, int y, SDL_Rect rect);
 
 #endif

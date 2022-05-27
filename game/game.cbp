@@ -42,13 +42,9 @@
 		</Linker>
 		<Unit filename="include/BaseObject.h" />
 		<Unit filename="include/CommonFunction.h" />
-		<Unit filename="include/LButton.h" />
-		<Unit filename="include/LTexture.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/BaseObject.cpp" />
 		<Unit filename="src/CommonFunction.cpp" />
-		<Unit filename="src/LButton.cpp" />
-		<Unit filename="src/LTexture.cpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
