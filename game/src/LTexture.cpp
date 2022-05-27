@@ -1,4 +1,5 @@
 
+#include <SDL.h>
 #include "../include/LTexture.h"
 
 LTexture::LTexture()
@@ -15,7 +16,7 @@ LTexture::~LTexture()
 	free();
 }
 
-bool LTexture::loadFromFile( std::string path , SDL_Renderer *gRenderer)
+bool LTexture::loadFromFile( string path )
 {
 	//Get rid of preexisting texture
 	free();
@@ -150,3 +151,4 @@ int LTexture::getHeight()
 {
 	return mHeight;
 }
+

@@ -15,7 +15,7 @@ class LTexture
 		~LTexture();
 
 		//Loads image at specified path
-		bool loadFromFile( std::string path, SDL_Renderer *gRenderer );
+		bool loadFromFile( string path );
 
 		#if defined(SDL_TTF_MAJOR_VERSION)
 		//Creates image from font string

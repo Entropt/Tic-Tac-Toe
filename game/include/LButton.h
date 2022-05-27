@@ -1,8 +1,15 @@
 
 //The mouse button
 
+#ifndef L_BUTTON_H_
+#define L_BUTTON_H_
+
 #include "../include/CommonFunction.h"
-#include "../include/CommonFunction.h"
+#include "../include/LButton.h"
+#include "../include/LTexture.h"
+
+
+
 
 class LButton
 {
@@ -20,9 +27,13 @@ class LButton
 		void render();
 
 	private:
+	    LTexture gButtonSpriteSheetTexture = NULL;
+
 		//Top left position
 		SDL_Point mPosition;
 
 		//Currently used global sprite
 		LButtonSprite mCurrentSprite;
 };
+
+#endif
