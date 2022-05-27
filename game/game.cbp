@@ -40,6 +40,7 @@
 			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer" />
 			<Add directory="lib" />
 		</Linker>
+		<Unit filename="include/AI.h" />
 		<Unit filename="include/BaseObject.h" />
 		<Unit filename="include/CommonFunction.h" />
 		<Unit filename="main.cpp" />
