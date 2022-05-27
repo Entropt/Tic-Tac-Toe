@@ -38,6 +38,8 @@ const SDL_Color red = {255, 0, 0, 255};
 
 bool inRect(int x, int y, SDL_Rect rect);
 
+///status shows the screen being rendered
+
 const int MAIN_MENU = 1;
 const int SINGLEPLAYER = 2;
 const int MULTIPLAYER = 3;

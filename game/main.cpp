@@ -6,17 +6,22 @@ and may not be redistributed without written permission.*/
 #include "include/CommonFunction.h"
 #include "include/BaseObject.h"
 
-
 //Starts up SDL and creates window
 bool init();
 
 //Loads media
 bool loadMedia();
 
+bool checkAvailable();
+void gameData();
+
 //Frees media and shuts down SDL
 void close();
 
-int status = 1;
+void initData();
+bool check();
+int winner_checker();
+
 SDL_Event event;
 BaseObject menu;
 BaseObject single_player;
@@ -33,15 +38,21 @@ BaseObject bot_first_icon;
 BaseObject player_first_icon;
 TTF_Font* font;
 TTF_Font* fontBig;
+
+int status = 1;
 bool winable_mode, player_first_mode;
 string p_name[2];
 int board[9]; ///0 = non-existent, 1 = X, 2 = O
 int score[2];
 SDL_Rect tile[9]; ///position of 9 tiles
+int frame[9]; //full -1
+int turn;
+
 
 int main( int argc, char* args[] )
 {
-	//Start up SDL and create window
+    srand(time(0));
+
 	if( !init() )
 	{
 		printf( "Failed to initialize!\n" );
@@ -59,17 +70,6 @@ int main( int argc, char* args[] )
         if(curTick - lastTick >= 33)
         {
             ////chay ct
-
-            if(status == SINGLEPLAYER || status == MULTIPLAYER || status == SINGLE_FIRST_PICK)
-            {
-                return_icon.setX((SCREEN_WIDTH - return_icon.getW()) / 2);
-                return_icon.setY(800);
-            }
-            else if (status == SINGLE_GAMEPLAY) {
-                return_icon.setX(1);
-                return_icon.setY(1);
-            }
-
             while(SDL_PollEvent(&event))
             {
                 if(event.type == SDL_QUIT)
@@ -93,13 +93,15 @@ int main( int argc, char* args[] )
                     }
                     else if(status == SINGLEPLAYER)
                     {
-                        if(inRect(x, y, winable.GetRect()))
+                        if(inRect(x, y, winable.GetRect())) {
                             winable_mode = 1;
-                        if(inRect(x, y, unwinable.GetRect()))
+                            status = SINGLE_FIRST_PICK;
+                        }
+                        if(inRect(x, y, unwinable.GetRect())) {
                             winable_mode = 0;
+                            status = SINGLE_FIRST_PICK;
+                        }
 
-                        score[0] = score[1] = 0;
-                        status = SINGLE_FIRST_PICK;
 
                         if(inRect(x, y, return_icon.GetRect()))
                             status = 1;
@@ -112,20 +114,29 @@ int main( int argc, char* args[] )
                             curPlayer = 1;
                         else if(inRect(x, y, return_icon.GetRect()))
                             status = 1;
-                        else if(inRect(x, y, continue_icon.GetRect()))
+                        else if(inRect(x, y, continue_icon.GetRect()) && p_name[0].size() > 1 && p_name[1].size() > 1)
                         {
                             score[0] = score[1] = 0;
                             status = MULTI_GAMEPLAY;
+                            initData();
                         }
                         else curPlayer = -1;
                     }
                     else if (status == SINGLE_FIRST_PICK)
                     {
-                        if (inRect(x, y, player_first_icon.GetRect()))
+                        if (inRect(x, y, player_first_icon.GetRect())) {
                             player_first_mode = 1;
-                        if (inRect(x, y, player_first_icon.GetRect()))
+                            score[0] = score[1] = 0;
+                            status = SINGLE_GAMEPLAY;
+                            initData();
+                        }
+                        if (inRect(x, y, bot_first_icon.GetRect())) {
                             player_first_mode = 0;
-                        status = SINGLE_GAMEPLAY;
+                            score[0] = score[1] = 0;
+                            status = SINGLE_GAMEPLAY;
+                            initData();
+                        }
+
 
                         if (inRect(x, y, return_icon.GetRect()))
                             status = SINGLEPLAYER;
@@ -133,6 +144,37 @@ int main( int argc, char* args[] )
                     else if (status == SINGLE_GAMEPLAY) {
                         if (inRect(x, y, return_icon.GetRect()))
                             status = SINGLE_FIRST_PICK;
+
+                        if (turn % 2 == player_first_mode && turn <= 9)
+                            for (int i = 0; i < 9; i++)
+                                if (inRect(x, y, tile[i]) && board[i] == 0 && check()){
+                                    board[i] = !player_first_mode + 1;
+                                    frame[i] = 0;
+                                    turn++;
+                                    break;
+                                }
+                    }
+                    else if (status == MULTI_GAMEPLAY) {
+                        if (inRect(x, y, return_icon.GetRect()))
+                            status = MULTIPLAYER;
+
+                        if (turn % 2) { if (turn <= 9)
+                            for (int i = 0; i < 9; i++)
+                                if (inRect(x, y, tile[i]) && board[i] == 0 && check()){
+                                    board[i] = 1;
+                                    frame[i] = 0;
+                                    turn++;
+                                }
+                        }
+                            else { if (turn <= 9)
+                                for (int i = 0; i < 9; i++) {
+                                    if (inRect(x, y, tile[i]) && board[i] == 0 && check()){
+                                        board[i] = 2;
+                                        frame[i] = 0;
+                                        turn++;
+                                    }
+                            }
+                        }
                     }
 
                 }
@@ -174,15 +216,77 @@ int main( int argc, char* args[] )
 
             }
 
+            cout << turn << '\n';
             //////////////Processing
+            if(status == SINGLEPLAYER || status == SINGLE_FIRST_PICK)
+            {
+                return_icon.setX((SCREEN_WIDTH - return_icon.getW()) / 2);
+                return_icon.setY(900);
+            }
+            else if (status == SINGLE_GAMEPLAY || status == MULTI_GAMEPLAY) {
+                return_icon.setX(60);
+                return_icon.setY(50);
+            }
+            else if (status == MULTIPLAYER) {
+                return_icon.setX(760);
+                return_icon.setY(900);
+
+                continue_icon.setX(1060);
+                continue_icon.setY(900);
+            }
 
             if(status == SINGLE_GAMEPLAY)
             {
-                for (int i = 0; i < 9; i++)
-                    if (i == 0) tile[i] = {736, 48, 307, 307};
-                    else tile[i] = {tile[i].x + (i % 3) * 335, tile[i].y + (i / 3) * 335, 307, 307};
+                gameData();
+
+
+                int game_status = winner_checker(); /// = 0 if draw, 1 if X wins, 2 if O wins
+
+                if (game_status == 1 && check()) {
+                    score[0]++;
+                    initData();
+                }
+                else if (game_status == 2 && check()) {
+                    score[1]++;
+                    initData();
+                }
+                else if (turn >= 10)
+                    initData();
+
+                ///Bot
+                int p;
+                if (turn % 2 != player_first_mode && turn <= 9 && check()) {
+                    p = rand() % 9;
+
+                    while (board[p] != 0) {
+                        p = rand() % 9;
+                        cout << p << '\n';
+                    }
+                    cout << p << '\n';
+                    board[p] = player_first_mode + 1;
+                    turn++;
+                    frame[p] = 0;
+                }
+
             }
 
+            if (status == MULTI_GAMEPLAY) {
+                gameData();
+
+
+                int game_status = winner_checker(); /// = 0 if draw, 1 if X wins, 2 if O wins
+
+                if (game_status == 1 && check()) {
+                    score[0]++;
+                    initData();
+                }
+                else if (game_status == 2 && check()) {
+                    score[1]++;
+                    initData();
+                }
+                else if (turn >= 10)
+                    initData();
+            }
 
             //////////////Render
             SDL_RenderClear(gRenderer);
@@ -255,7 +359,7 @@ int main( int argc, char* args[] )
                 SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
 
                 return_icon.Render(gRenderer, NULL);
-
+                continue_icon.Render(gRenderer, NULL);
             }
             else if (status == SINGLE_FIRST_PICK)
             {
@@ -267,7 +371,6 @@ int main( int argc, char* args[] )
                 player_first_icon.Render(gRenderer, NULL);
                 bot_first_icon.Render(gRenderer, NULL);
                 return_icon.Render(gRenderer, NULL);
-
             }
             else if(status == SINGLE_GAMEPLAY)
             {
@@ -309,6 +412,71 @@ int main( int argc, char* args[] )
                 nRect.y = 650;
                 SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
 
+                for (int i = 0; i < 9; i++){
+                    if (board[i] == 1 || board[i] == 2)
+                    {
+                        SDL_Rect tRect = {174 * frame[i], 0, 174, 174};
+                        if(board[i] == 1)
+                            SDL_RenderCopy(gRenderer, X_animation.GetObjectA(), &tRect, &tile[i]);
+                        else
+                            SDL_RenderCopy(gRenderer, O_animation.GetObjectA(), &tRect, &tile[i]);
+                        if(frame[i] < 8)
+                            frame[i]++;
+                    }
+                }
+                return_icon.Render(gRenderer, NULL);
+            }
+            else if (status == MULTI_GAMEPLAY) {
+                play_gr.Render(gRenderer, NULL);
+
+                SDL_Surface* sf = NULL;
+                SDL_Texture* tx = NULL;
+
+                sf = TTF_RenderText_Solid(fontBig, p_name[0].c_str(), white);
+                tx = SDL_CreateTextureFromSurface(gRenderer, sf);
+                int w, h;
+                w = sf->w, h = sf->h;
+                SDL_Rect nRect = {0, 0, w, h};
+                nRect.x = 353 - w / 2;
+                nRect.y = 100;
+                SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
+
+                sf = TTF_RenderText_Solid(fontBig, p_name[1].c_str(), white);
+                tx = SDL_CreateTextureFromSurface(gRenderer, sf);
+                w = sf->w, h = sf->h;
+                nRect = {0, 0, w, h};
+                nRect.x = 353 - w / 2;
+                nRect.y = 820;
+                SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
+
+                sf = TTF_RenderText_Solid(fontBig, int2str(score[0]).c_str(), white);
+                tx = SDL_CreateTextureFromSurface(gRenderer, sf);
+                w = sf->w, h = sf->h;
+                nRect = {0, 0, w, h};
+                nRect.x = 340;
+                nRect.y = 280;
+                SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
+
+                sf = TTF_RenderText_Solid(fontBig, int2str(score[1]).c_str(), white);
+                tx = SDL_CreateTextureFromSurface(gRenderer, sf);
+                w = sf->w, h = sf->h;
+                nRect = {0, 0, w, h};
+                nRect.x = 340;
+                nRect.y = 650;
+                SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
+
+                for (int i = 0; i < 9; i++){
+                    if (board[i] == 1 || board[i] == 2)
+                    {
+                        SDL_Rect tRect = {174 * frame[i], 0, 174, 174};
+                        if(board[i] == 1)
+                            SDL_RenderCopy(gRenderer, X_animation.GetObjectA(), &tRect, &tile[i]);
+                        else
+                            SDL_RenderCopy(gRenderer, O_animation.GetObjectA(), &tRect, &tile[i]);
+                        if(frame[i] < 8)
+                            frame[i]++;
+                    }
+                }
                 return_icon.Render(gRenderer, NULL);
             }
 
@@ -456,6 +624,50 @@ bool loadMedia()
 	return success;
 }
 
+bool checkAvailable() {
+    for (int i = 0; i < 9; i++)
+        if (board[i] == 0) return true;
+
+    return false;
+}
+
+void initData() {
+    for (int i = 0; i <= 8; i++) {
+        board[i] = 0;
+        frame[i] = -1;
+    }
+    turn = 1;
+
+}
+
+bool check()
+{
+    for(int i = 0; i < 9; i++)
+    {
+        if(board[i] > 0 && frame[i] < 8)
+            return false;
+    }
+    return true;
+}
+
+int winner_checker() {
+    if (board[0] == board[1] && board[1] == board[2] && board[0] != 0) return board[0];
+    if (board[3] == board[4] && board[4] == board[5] && board[3] != 0) return board[3];
+    if (board[6] == board[7] && board[7] == board[8] && board[6] != 0) return board[6];
+    if (board[0] == board[3] && board[3] == board[6] && board[0] != 0) return board[0];
+    if (board[1] == board[4] && board[4] == board[7] && board[1] != 0) return board[1];
+    if (board[2] == board[5] && board[5] == board[8] && board[2] != 0) return board[2];
+    if (board[0] == board[4] && board[4] == board[8] && board[0] != 0) return board[0];
+    if (board[2] == board[4] && board[4] == board[6] && board[2] != 0) return board[2];
+
+    return 0;
+}
+
+void gameData() {
+    for (int i = 0; i < 9; i++)
+        if (i == 0) tile[i] = {736, 48, 307, 307};
+        else tile[i] = {tile[0].x + (i % 3) * 335, tile[0].y + (i / 3) * 335, 307, 307};
+}
 
 void close()
 {
