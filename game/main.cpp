@@ -29,8 +29,14 @@ BaseObject play_gr;
 BaseObject X_animation, O_animation;
 BaseObject winable, unwinable;
 BaseObject name_border[2];
+BaseObject bot_first_icon;
+BaseObject player_first_icon;
 TTF_Font* font;
+TTF_Font* fontBig;
 string p_name[2];
+int board[9]; ///0 = non-existent, 1 = X, 2 = O
+int score[2];
+SDL_Rect tile[9]; ///position of 9 tiles
 
 int main( int argc, char* args[] )
 {
@@ -67,29 +73,35 @@ int main( int argc, char* args[] )
                 {
                     int x, y;
                     SDL_GetMouseState(&x, &y);
-                    if(status == 1)
+                    if(status == MAIN_MENU)
                     {
                         if(inRect(x, y, single_player.GetRect()))
-                            status = 2;
+                            status = SINGLEPLAYER;
                         else if(inRect(x, y, multi_player.GetRect()))
                         {
                             curPlayer = -1;
                             p_name[0] = p_name[1] = " ";
-                            status = 3;
+                            status = MULTIPLAYER;
                         }
                         else if(inRect(x, y, exit_icon.GetRect()))
                             status = 0;
                     }
-                    else if(status == 2)
+                    else if(status == SINGLEPLAYER)
                     {
                         if(inRect(x, y, winable.GetRect()))
-                            status = 4;
+                        {
+                            score[0] = score[1] = 0;
+                            status = SINGLE_WINABLE;
+                        }
                         else if(inRect(x, y, unwinable.GetRect()))
-                            status = 5;
+                        {
+                            score[0] = score[1] = 0;
+                            status = SINGLE_UNWINABLE;
+                        }
                         else if(inRect(x, y, return_icon.GetRect()))
                             status = 1;
                     }
-                    else if(status == 3)
+                    else if(status == MULTIPLAYER)
                     {
                         if(inRect(x, y, name_border[0].GetRect()))
                             curPlayer = 0;
@@ -98,9 +110,19 @@ int main( int argc, char* args[] )
                         else if(inRect(x, y, return_icon.GetRect()))
                             status = 1;
                         else if(inRect(x, y, continue_icon.GetRect()))
-                            status = 6;
+                        {
+                            score[0] = score[1] = 0;
+                            status = MULTI_GAMEPLAY;
+                        }
                         else curPlayer = -1;
-                    }
+                    }/*
+                    else if (status == SINGLE_WINABLE)
+                    {
+                        for (int i = 0; i < 9; i++)
+                            if (inRect(x, y, tile[i].GetRect()) && board[i] == 0)
+                                board[i]
+
+                    }*/
 
                 }
 
@@ -143,16 +165,18 @@ int main( int argc, char* args[] )
 
             //////////////
 
-            if(status )
+            if(status == 4)
             {
-
+                for (int i = 0; i < 9; i++)
+                    if (i == 0) tile[i] = {736, 48, 307, 307};
+                    else tile[i] = {tile[i].x + (i % 3) * 335, tile[i].y + (i / 3) * 335, 307, 307};
             }
 
 
             //////////////Render
             SDL_RenderClear(gRenderer);
 
-            if(status == 1)
+            if(status == MAIN_MENU)
             {
                 menu.Render(gRenderer, NULL);
                 single_player.Render(gRenderer, NULL);
@@ -160,14 +184,14 @@ int main( int argc, char* args[] )
                 exit_icon.Render(gRenderer, NULL);
 
             }
-            else if(status == 2)
+            else if(status == SINGLEPLAYER)
             {
                 menu.Render(gRenderer, NULL);
                 winable.Render(gRenderer, NULL);
                 unwinable.Render(gRenderer, NULL);
                 return_icon.Render(gRenderer, NULL);
             }
-            else if(status == 3)
+            else if(status == MULTIPLAYER)
             {
                 menu.Render(gRenderer, NULL);
                 SDL_Surface* sf = NULL;
@@ -222,6 +246,46 @@ int main( int argc, char* args[] )
 
                 return_icon.Render(gRenderer, NULL);
 
+            }
+            else if(status == SINGLE_WINABLE)
+            {
+                play_gr.Render(gRenderer, NULL);
+
+                SDL_Surface* sf = NULL;
+                SDL_Texture* tx = NULL;
+
+                sf = TTF_RenderText_Solid(fontBig, "Player", white);
+                tx = SDL_CreateTextureFromSurface(gRenderer, sf);
+                int w, h;
+                w = sf->w, h = sf->h;
+                SDL_Rect nRect = {0, 0, w, h};
+                nRect.x = 160;
+                nRect.y = 100;
+                SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
+
+                sf = TTF_RenderText_Solid(fontBig, "Bot", white);
+                tx = SDL_CreateTextureFromSurface(gRenderer, sf);
+                w = sf->w, h = sf->h;
+                nRect = {0, 0, w, h};
+                nRect.x = 240;
+                nRect.y = 820;
+                SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
+
+                sf = TTF_RenderText_Solid(fontBig, int2str(score[0]).c_str(), white);
+                tx = SDL_CreateTextureFromSurface(gRenderer, sf);
+                w = sf->w, h = sf->h;
+                nRect = {0, 0, w, h};
+                nRect.x = 295;
+                nRect.y = 280;
+                SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
+
+                sf = TTF_RenderText_Solid(fontBig, int2str(score[1]).c_str(), white);
+                tx = SDL_CreateTextureFromSurface(gRenderer, sf);
+                w = sf->w, h = sf->h;
+                nRect = {0, 0, w, h};
+                nRect.x = 295;
+                nRect.y = 650;
+                SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
             }
 
             SDL_RenderPresent(gRenderer);
@@ -291,6 +355,7 @@ bool init()
 	}
 	TTF_Init();
 	font = TTF_OpenFont("font/timesbd.ttf", 36);
+	fontBig = TTF_OpenFont("font/timesbd.ttf", 120);
 
 	return success;
 }
@@ -343,6 +408,12 @@ bool loadMedia()
     if(!name_border[1].LoadImg("image/name_border.png", gRenderer))
         success = false;
 
+    if(!player_first_icon.LoadImg("image/player_first_icon.png", gRenderer))
+        success = false;
+
+    if(!bot_first_icon.LoadImg("image/bot_first_icon.png", gRenderer))
+        success = false;
+
     single_player.setX((SCREEN_WIDTH - single_player.getW()) / 2);
     single_player.setY(567);
 
@@ -362,6 +433,7 @@ bool loadMedia()
 
 	return success;
 }
+
 
 void close()
 {

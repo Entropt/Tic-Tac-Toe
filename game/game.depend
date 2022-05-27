@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1653631339 source:d:\tic-tac-toe\game\main.cpp
+1653637385 source:d:\tic-tac-toe\game\main.cpp
 	"include/CommonFunction.h"
 	"include/BaseObject.h"
 
@@ -381,7 +381,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1653630568 d:\tic-tac-toe\game\include\commonfunction.h
+1653637564 d:\tic-tac-toe\game\include\commonfunction.h
 	<bits/stdc++.h>
 	<windows.h>
 	<SDL.h>
@@ -409,7 +409,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1653623828 source:d:\tic-tac-toe\game\src\commonfunction.cpp
+1653633796 source:d:\tic-tac-toe\game\src\commonfunction.cpp
 	"../include/CommonFunction.h"
 
 1653622959 source:d:\tic-tac-toe\game\src\baseobject.cpp
