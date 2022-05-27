@@ -41,10 +41,9 @@ bool inRect(int x, int y, SDL_Rect rect);
 const int MAIN_MENU = 1;
 const int SINGLEPLAYER = 2;
 const int MULTIPLAYER = 3;
-const int SINGLE_WINABLE = 4;
-const int SINGLE_UNWINABLE = 5;
+const int SINGLE_FIRST_PICK = 4;
+const int SINGLE_GAMEPLAY = 5;
 const int MULTI_GAMEPLAY = 6;
-const int SINGLE_FIRST_PICK = 7;
 
 string int2str(int num);
 

@@ -8,8 +8,8 @@ class BaseObject {
     public:
         BaseObject();
         ~BaseObject();
-        void SetRect(const int& x, const int& y) {
-            rect.x = x;  rect.y = y;
+        void SetRect(SDL_Rect nRect) {
+            rect = nRect;
         }
         SDL_Rect GetRect() const {
             return rect;

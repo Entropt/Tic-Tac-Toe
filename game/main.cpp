@@ -33,6 +33,7 @@ BaseObject bot_first_icon;
 BaseObject player_first_icon;
 TTF_Font* font;
 TTF_Font* fontBig;
+bool winable_mode, player_first_mode;
 string p_name[2];
 int board[9]; ///0 = non-existent, 1 = X, 2 = O
 int score[2];
@@ -59,10 +60,14 @@ int main( int argc, char* args[] )
         {
             ////chay ct
 
-            if(status == 2 || status == 3)
+            if(status == SINGLEPLAYER || status == MULTIPLAYER || status == SINGLE_FIRST_PICK)
             {
                 return_icon.setX((SCREEN_WIDTH - return_icon.getW()) / 2);
                 return_icon.setY(800);
+            }
+            else if (status == SINGLE_GAMEPLAY) {
+                return_icon.setX(1);
+                return_icon.setY(1);
             }
 
             while(SDL_PollEvent(&event))
@@ -89,16 +94,14 @@ int main( int argc, char* args[] )
                     else if(status == SINGLEPLAYER)
                     {
                         if(inRect(x, y, winable.GetRect()))
-                        {
-                            score[0] = score[1] = 0;
-                            status = SINGLE_WINABLE;
-                        }
-                        else if(inRect(x, y, unwinable.GetRect()))
-                        {
-                            score[0] = score[1] = 0;
-                            status = SINGLE_UNWINABLE;
-                        }
-                        else if(inRect(x, y, return_icon.GetRect()))
+                            winable_mode = 1;
+                        if(inRect(x, y, unwinable.GetRect()))
+                            winable_mode = 0;
+
+                        score[0] = score[1] = 0;
+                        status = SINGLE_FIRST_PICK;
+
+                        if(inRect(x, y, return_icon.GetRect()))
                             status = 1;
                     }
                     else if(status == MULTIPLAYER)
@@ -115,20 +118,28 @@ int main( int argc, char* args[] )
                             status = MULTI_GAMEPLAY;
                         }
                         else curPlayer = -1;
-                    }/*
-                    else if (status == SINGLE_WINABLE)
+                    }
+                    else if (status == SINGLE_FIRST_PICK)
                     {
-                        for (int i = 0; i < 9; i++)
-                            if (inRect(x, y, tile[i].GetRect()) && board[i] == 0)
-                                board[i]
+                        if (inRect(x, y, player_first_icon.GetRect()))
+                            player_first_mode = 1;
+                        if (inRect(x, y, player_first_icon.GetRect()))
+                            player_first_mode = 0;
+                        status = SINGLE_GAMEPLAY;
 
-                    }*/
+                        if (inRect(x, y, return_icon.GetRect()))
+                            status = SINGLEPLAYER;
+                    }
+                    else if (status == SINGLE_GAMEPLAY) {
+                        if (inRect(x, y, return_icon.GetRect()))
+                            status = SINGLE_FIRST_PICK;
+                    }
 
                 }
 
                 if(event.type == SDL_KEYDOWN)
                 {
-                    if(status == 3 && curPlayer != -1)
+                    if(status == MULTIPLAYER && curPlayer != -1)
                     switch(event.key.keysym.sym)
                     {
                         case SDLK_a: {p_name[curPlayer] += 'a'; break;}
@@ -163,9 +174,9 @@ int main( int argc, char* args[] )
 
             }
 
-            //////////////
+            //////////////Processing
 
-            if(status == 4)
+            if(status == SINGLE_GAMEPLAY)
             {
                 for (int i = 0; i < 9; i++)
                     if (i == 0) tile[i] = {736, 48, 307, 307};
@@ -182,7 +193,6 @@ int main( int argc, char* args[] )
                 single_player.Render(gRenderer, NULL);
                 multi_player.Render(gRenderer, NULL);
                 exit_icon.Render(gRenderer, NULL);
-
             }
             else if(status == SINGLEPLAYER)
             {
@@ -247,7 +257,19 @@ int main( int argc, char* args[] )
                 return_icon.Render(gRenderer, NULL);
 
             }
-            else if(status == SINGLE_WINABLE)
+            else if (status == SINGLE_FIRST_PICK)
+            {
+                menu.Render(gRenderer, NULL);
+
+                player_first_icon.SetRect(winable.GetRect());
+                bot_first_icon.SetRect(unwinable.GetRect());
+
+                player_first_icon.Render(gRenderer, NULL);
+                bot_first_icon.Render(gRenderer, NULL);
+                return_icon.Render(gRenderer, NULL);
+
+            }
+            else if(status == SINGLE_GAMEPLAY)
             {
                 play_gr.Render(gRenderer, NULL);
 
@@ -259,7 +281,7 @@ int main( int argc, char* args[] )
                 int w, h;
                 w = sf->w, h = sf->h;
                 SDL_Rect nRect = {0, 0, w, h};
-                nRect.x = 160;
+                nRect.x = 200;
                 nRect.y = 100;
                 SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
 
@@ -267,7 +289,7 @@ int main( int argc, char* args[] )
                 tx = SDL_CreateTextureFromSurface(gRenderer, sf);
                 w = sf->w, h = sf->h;
                 nRect = {0, 0, w, h};
-                nRect.x = 240;
+                nRect.x = 280;
                 nRect.y = 820;
                 SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
 
@@ -275,7 +297,7 @@ int main( int argc, char* args[] )
                 tx = SDL_CreateTextureFromSurface(gRenderer, sf);
                 w = sf->w, h = sf->h;
                 nRect = {0, 0, w, h};
-                nRect.x = 295;
+                nRect.x = 340;
                 nRect.y = 280;
                 SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
 
@@ -283,9 +305,11 @@ int main( int argc, char* args[] )
                 tx = SDL_CreateTextureFromSurface(gRenderer, sf);
                 w = sf->w, h = sf->h;
                 nRect = {0, 0, w, h};
-                nRect.x = 295;
+                nRect.x = 340;
                 nRect.y = 650;
                 SDL_RenderCopy(gRenderer, tx, NULL, &nRect);
+
+                return_icon.Render(gRenderer, NULL);
             }
 
             SDL_RenderPresent(gRenderer);
@@ -295,13 +319,11 @@ int main( int argc, char* args[] )
         }
     }
 
-
-	//Free resources and close SDL
 	close();
 
 	return 0;
 }
-///////Function
+///////---------------------------------------------------Function---------------------------------------------------
 
 bool init()
 {
