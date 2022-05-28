@@ -48,6 +48,8 @@ BaseObject X2_line;
 TTF_Font* font;
 TTF_Font* fontBig;
 
+void tester();
+
 int status = MAIN_MENU;
 bool winable_mode, player_first_mode;
 string p_name[2];
@@ -67,7 +69,7 @@ int main( int argc, char* args[] )
 
     gameData();
 
-
+//    tester();
 
 	if( !init() )
 	{
@@ -693,12 +695,14 @@ void unwinableBot() {
             if (board[i] == 0) {
                 board[i] = player_first_mode + 1;
 
-            mid = minimax(board, 9 - turn, 1);
+                mid = minimax(board, 9 - turn, 1);
+                board[i] = 0;
+
                 if (mid > res) {
                     res = mid;
                     p = i;
                 }
-                board[i] = 0;
+
             }
         board[p] = player_first_mode + 1;
         turn++;
@@ -731,10 +735,9 @@ int minimax(vector<int> board, int depth, bool bot_turn) {
                 board[i] = !player_first_mode + 1;
                 res = min(res, minimax(board, depth - 1, 1));
             }
+            board[i] = 0;
         }
-      for (int i = 0; i < 9; i++)
-            cout << board[i] << ' ';
-        cout << res << '\n';
+
     return res;
 }
 void gameData() {
@@ -744,7 +747,7 @@ void gameData() {
 }
 
 void initData() {
-    for (int i = 0; i <= 8; i++) {
+    for (int i = 0; i < 9; i++) {
         board[i] = 0;
         frame[i] = -1;
     }
