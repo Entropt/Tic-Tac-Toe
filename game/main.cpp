@@ -55,8 +55,7 @@ bool winable_mode, player_first_mode;
 string p_name[2];
 vector<int> board (9, 0); ///0 = non-existent, 1 = X, 2 = O
 
-map < vector<int>, int > optMove1; ///bot_start
-map < vector<int>, int > optMove2;
+
 int score[2];
 SDL_Rect tile[9]; ///position of 9 tiles
 int frame[9]; //full -1
@@ -69,7 +68,7 @@ int main( int argc, char* args[] )
 
     gameData();
 
-//    tester();
+    tester();
 
 	if( !init() )
 	{
@@ -87,7 +86,7 @@ int main( int argc, char* args[] )
         curTick = SDL_GetTicks();
         if(curTick - lastTick >= 33)
         {
-
+            /////--------------------------------------------Interaction--------------------------------------------------
             while(SDL_PollEvent(&event))
             {
                 if(event.type == SDL_QUIT)
@@ -244,7 +243,7 @@ int main( int argc, char* args[] )
 
             }
 
-            //////////////Processing
+            //////////////----------------------------------------Process-----------------------------------------------
             if(status == SINGLEPLAYER || status == SINGLE_FIRST_PICK)
             {
                 return_icon.setX((SCREEN_WIDTH - return_icon.getW()) / 2);
@@ -269,16 +268,16 @@ int main( int argc, char* args[] )
 
                 if (game_status == !player_first_mode + 1 && check()) {
                     score[0]++;
-                    SDL_Delay(2000);
+                    SDL_Delay(1500);
                     initData();
                 }
                 else if (game_status == player_first_mode + 1 && check()) {
                     score[1]++;
-                    SDL_Delay(2000);
+                    SDL_Delay(1500);
                     initData();
                 }
                 else if (turn >= 10 && check()) {
-                    SDL_Delay(2000);
+                    SDL_Delay(1500);
                     initData();
                 }
                 //Bot Winable
@@ -292,21 +291,21 @@ int main( int argc, char* args[] )
 
                 if (game_status == 1 && check()) {
                     score[0]++;
-                    SDL_Delay(2000);
+                    SDL_Delay(1500);
                     initData();
                 }
                 else if (game_status == 2 && check()) {
                     score[1]++;
-                    SDL_Delay(2000);
+                    SDL_Delay(1500);
                     initData();
                 }
                 else if (turn >= 10 && check()) {
-                    SDL_Delay(2000);
+                    SDL_Delay(1500);
                     initData();
                 }
             }
 
-            //////////////Render
+            //////////////----------------------------------------Render--------------------------------------------
             SDL_RenderClear(gRenderer);
 
             if(status == MAIN_MENU)
@@ -540,7 +539,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Tic Tac Toe by Entropt", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -702,14 +701,17 @@ void unwinableBot() {
                     res = mid;
                     p = i;
                 }
-
             }
         board[p] = player_first_mode + 1;
         turn++;
         frame[p] = 0;
     }
-}
 
+
+}
+void tester() {
+
+}
 int minimax(vector<int> board, int depth, bool bot_turn) {
     if (depth == 0)
         return 0;
@@ -717,10 +719,10 @@ int minimax(vector<int> board, int depth, bool bot_turn) {
     int res = 0;
     int game_status = winner_checker(board);
     if (game_status == !player_first_mode + 1) {
-        return -depth;
+        return -depth - 1;
     }
     else if (game_status == player_first_mode + 1) {
-        return depth;
+        return depth + 1;
     }
 
     for (int i = 0; i < 9; i++)
